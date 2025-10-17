@@ -58,7 +58,8 @@ class ProductProvider with ChangeNotifier {
       _currentPage++;
       _setState(ProductState.loaded);
     } catch (e) {
-      _setError(e.toString());
+      String errorMessage = _extractErrorMessage(e);
+      _setError(errorMessage);
     }
   }
 
@@ -67,7 +68,8 @@ class ProductProvider with ChangeNotifier {
     try {
       return await _repository.getProduct(id);
     } catch (e) {
-      _setError(e.toString());
+      String errorMessage = _extractErrorMessage(e);
+      _setError(errorMessage);
       return null;
     }
   }
@@ -90,7 +92,8 @@ class ProductProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      String errorMessage = _extractErrorMessage(e);
+      _setError(errorMessage);
       return false;
     }
   }
@@ -119,7 +122,8 @@ class ProductProvider with ChangeNotifier {
       
       return true;
     } catch (e) {
-      _setError(e.toString());
+      String errorMessage = _extractErrorMessage(e);
+      _setError(errorMessage);
       return false;
     }
   }
@@ -132,7 +136,8 @@ class ProductProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      String errorMessage = _extractErrorMessage(e);
+      _setError(errorMessage);
       return false;
     }
   }
@@ -167,5 +172,17 @@ class ProductProvider with ChangeNotifier {
     _state = ProductState.error;
     _errorMessage = message.isEmpty ? StringConstants.unexpectedError : message;
     notifyListeners();
+  }
+
+  String _extractErrorMessage(dynamic error) {
+    if (error is Exception) {
+      String errorString = error.toString();
+      // Remove "Exception: " prefix if present
+      if (errorString.startsWith('Exception: ')) {
+        return errorString.substring(11);
+      }
+      return errorString;
+    }
+    return error.toString();
   }
 }

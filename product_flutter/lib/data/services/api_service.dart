@@ -85,7 +85,20 @@ class ApiService {
       case 308:
         throw const ServerException('Redirect not handled - check API endpoint');
       case 400:
-        throw const ValidationException('Bad request - check input data');
+        String errorMessage = 'Bad request - check input data';
+        try {
+          final errorData = json.decode(response.body);
+          if (errorData is Map<String, dynamic>) {
+            // Try to extract error message from various possible fields
+            errorMessage = errorData['detail']?.toString() ?? 
+                          errorData['message']?.toString() ?? 
+                          errorData['error']?.toString() ?? 
+                          errorMessage;
+          }
+        } catch (e) {
+          // If we can't parse the error response, use the default message
+        }
+        throw ValidationException(errorMessage);
       case 401:
         throw const UnauthorizedException('Unauthorized access');
       case 404:
@@ -93,7 +106,18 @@ class ApiService {
       case 500:
         throw const ServerException('Internal server error');
       default:
-        throw ServerException('HTTP Error ${response.statusCode}: ${response.reasonPhrase}');
+        String errorMessage = 'HTTP Error ${response.statusCode}';
+        try {
+          final errorData = json.decode(response.body);
+          if (errorData is Map<String, dynamic>) {
+            errorMessage = errorData['detail']?.toString() ?? 
+                          errorData['message']?.toString() ?? 
+                          errorMessage;
+          }
+        } catch (e) {
+          // If we can't parse the error response, use the default message
+        }
+        throw ServerException(errorMessage);
     }
   }
 
@@ -135,7 +159,19 @@ class ApiService {
         case 308:
           throw const ServerException('Redirect not handled - check API endpoint');
         case 400:
-          throw const ValidationException('Bad request - check input data');
+          String errorMessage = 'Bad request - check input data';
+          try {
+            final errorData = json.decode(response.body);
+            if (errorData is Map<String, dynamic>) {
+              errorMessage = errorData['detail']?.toString() ?? 
+                            errorData['message']?.toString() ?? 
+                            errorData['error']?.toString() ?? 
+                            errorMessage;
+            }
+          } catch (e) {
+            // If we can't parse the error response, use the default message
+          }
+          throw ValidationException(errorMessage);
         case 401:
           throw const UnauthorizedException('Unauthorized access');
         case 404:
@@ -143,7 +179,18 @@ class ApiService {
         case 500:
           throw const ServerException('Internal server error');
         default:
-          throw ServerException('HTTP Error ${response.statusCode}: ${response.reasonPhrase}');
+          String errorMessage = 'HTTP Error ${response.statusCode}';
+          try {
+            final errorData = json.decode(response.body);
+            if (errorData is Map<String, dynamic>) {
+              errorMessage = errorData['detail']?.toString() ?? 
+                            errorData['message']?.toString() ?? 
+                            errorMessage;
+            }
+          } catch (e) {
+            // If we can't parse the error response, use the default message
+          }
+          throw ServerException(errorMessage);
       }
     } on SocketException {
       throw const NetworkException('No internet connection');
